@@ -94117,29 +94117,29 @@ uniform uOrigin: vec3f;
 uniform uSpread: f32;
 fn pHash(pIn: vec3f) -> f32 { var p = fract(pIn * 0.1031); p = p + dot(p, p.zyx + 31.32); return fract((p.x + p.y) * p.z); }
 fn pHash3(pIn: vec3f) -> vec3f { var p = fract(pIn * vec3f(0.1031, 0.1030, 0.0973)); p = p + dot(p, p.yxz + 33.33); return fract((p.xxy + p.yxx) * p.zyx); }
-fn pProgress(c: vec3f) -> f32 { let r = pHash(c * 137.0); let t = clamp(uniforms.uScatter * 1.5 - r * 0.5, 0.0, 1.0); return t * t * (3.0 - 2.0 * t); }
+fn pProgress(c: vec3f) -> f32 { let r = pHash(c * 137.0); let t = clamp(uniform.uScatter * 1.5 - r * 0.5, 0.0, 1.0); return t * t * (3.0 - 2.0 * t); }
 fn modifySplatCenter(center: ptr<function, vec3f>) {
-  if (uniforms.uScatter <= 0.0) { return; }
+  if (uniform.uScatter <= 0.0) { return; }
   let c = *center;
   let t = pProgress(c);
   if (t <= 0.0) { return; }
   let rnd = pHash3(c * 91.0) * 2.0 - vec3f(1.0);
   let r = pHash(c * 37.0);
-  let sp = uniforms.uSpread;
-  let dir = normalize(c - uniforms.uOrigin + rnd * sp * 0.3 + vec3f(1e-4));
+  let sp = uniform.uSpread;
+  let dir = normalize(c - uniform.uOrigin + rnd * sp * 0.3 + vec3f(1e-4));
   var off = dir * sp * (0.6 + 1.4 * r) + rnd * sp * 0.4;
   let a = t * (r - 0.5) * 3.0;
   let ca = cos(a); let sa = sin(a);
   off = vec3f(ca * off.x - sa * off.z, off.y, sa * off.x + ca * off.z);
-  let tm = uniforms.uTime;
+  let tm = uniform.uTime;
   off = off + vec3f(sin(tm * 0.9 + r * 31.0), cos(tm * 0.7 + r * 17.0), sin(tm * 1.1 + r * 23.0)) * sp * 0.06;
   *center = c + off * t;
 }
 fn modifySplatRotationScale(originalCenter: vec3f, modifiedCenter: vec3f, rotation: ptr<function, vec4f>, scale: ptr<function, vec3f>) {
-  if (uniforms.uScatter <= 0.0) { return; }
+  if (uniform.uScatter <= 0.0) { return; }
   let t = pProgress(originalCenter);
   let s = *scale;
-  let sz = min(sqrt(dot(s, s) / 3.0), uniforms.uSpread * 0.012);
+  let sz = min(sqrt(dot(s, s) / 3.0), uniform.uSpread * 0.012);
   *scale = mix(s, vec3f(sz), t);
 }
 fn modifySplatColor(center: vec3f, color: ptr<function, vec4f>) {
